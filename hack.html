@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f766e" />
+  <title>Smart Curriculum Attendance</title>
+  <link rel="stylesheet" href="hack.css" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="description" content="Offline-first attendance and activity tracker for rural schools (frontend only)." />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <span class="logo">★</span>
+      <div>
+        <h1>SMART RURAL ATTENDANCE APP</h1>
+        <p class="subtitle">Class 10 D • 30 Students • Offline-first</p>
+      </div>
+    </div>
+    <nav class="top-actions" aria-label="Top actions">
+      <button id="installPWA" class="btn ghost" aria-label="Install app">Install</button>
+      <button id="toggleTheme" class="btn ghost" aria-label="Toggle theme">Theme</button>
+      <button id="resetDemo" class="btn danger" aria-label="Reset demo data">Reset</button>
+    </nav>
+  </header>
+
+  <main class="container">
+    <aside class="sidebar" aria-label="Main menu">
+      <ul class="nav">
+        <li><button class="nav-link active" data-view="attendance">Attendance</button></li>
+        <li><button class="nav-link" data-view="activities">Activities</button></li>
+        <li><button class="nav-link" data-view="students">Students</button></li>
+        <li><button class="nav-link" data-view="reports">Reports</button></li>
+        <li><button class="nav-link" data-view="settings">Settings</button></li>
+      </ul>
+      <div class="status">
+        <span id="netStatus" class="badge online" aria-live="polite">Online</span>
+        <span id="syncStatus" class="badge idle" aria-live="polite">Synced</span>
+      </div>
+    </aside>
+
+    <section class="view" id="attendance" aria-labelledby="attendanceTitle">
+      <div class="view-header">
+        <h2 id="attendanceTitle">Attendance</h2>
+        <div class="row">
+          <input id="datePicker" type="date" class="input" aria-label="Select date" />
+          <button id="markAllPresent" class="btn">Mark all present</button>
+          <button id="markAllAbsent" class="btn">Mark all absent</button>
+          <button id="saveAttendance" class="btn">Save</button>
+          <button id="exportAttendance" class="btn ghost">Export CSV</button>
+          <button id="printSheet" class="btn ghost">Print</button>
+        </div>
+        <div class="row">
+          <input id="searchAtt" type="search" class="input" placeholder="Search by name or roll…" aria-label="Search students" />
+          <div class="switch">
+            <input type="checkbox" id="qrMode" />
+            <label for="qrMode">QR mode</label>
+          </div>
+        </div>
+      </div>
+      <div id="attList" class="grid"></div>
+    </section>
+
+    <section class="view hidden" id="activities" aria-labelledby="activitiesTitle">
+      <div class="view-header">
+        <h2 id="activitiesTitle">Curriculum activities</h2>
+        <div class="row">
+          <select id="subjectSelect" class="input" aria-label="Subject">
+            <option value="Hindi">Hindi</option>
+            <option value="Math">Math</option>
+            <option value="EVS">EVS</option>
+            <option value="English">English</option>
+            <option value="Art">Art</option>
+            <option value="Sports">Sports</option>
+          </select>
+          <select id="activityType" class="input" aria-label="Activity type">
+            <option value="Reading">Reading</option>
+            <option value="Lab">Lab</option>
+            <option value="Project">Project</option>
+            <option value="Practice">Practice</option>
+            <option value="Assessment">Assessment</option>
+          </select>
+          <div style="color:white;border-radius: 50%; background-color: #0f766e; padding: 0.75rem 1rem; font-size: 14px; display: flex; align-items: center; justify-content: center;">
+            <a href="search.html" target="_main" style="text-decoration:none;color:white">Recommendations</a>
+          </div>
+          <input id="actDate" type="date" class="input" aria-label="Activity date" />
+          <button id="saveActivity" class="btn">Save</button>
+          <button id="exportActivities" class="btn ghost">Export CSV</button>
+        </div>
+      </div>
+      <div class="grid" id="activityGrid"></div>
+    </section>
+
+    <section class="view hidden" id="students" aria-labelledby="studentsTitle">
+      <div class="view-header">
+        <h2 id="studentsTitle">Students</h2>
+        <div class="row">
+          <button id="printQR" class="btn">Print QR cards</button>
+          <button id="exportStudents" class="btn ghost">Export CSV</button>
+          <input id="searchStu" type="search" class="input" placeholder="Search…" aria-label="Search students" />
+        </div>
+      </div>
+      <div id="studentsGrid" class="grid"></div>
+      <dialog id="qrDialog">
+        <div id="qrCards" class="qr-cards"></div>
+        <div class="row end">
+          <button id="closeQr" class="btn">Close</button>
+          <button id="printQrNow" class="btn">Print</button>
+        </div>
+      </dialog>
+    </section>
+
+    <section class="view hidden" id="reports" aria-labelledby="reportsTitle">
+      <div class="view-header">
+        <h2 id="reportsTitle">Reports</h2>
+        <div class="row">
+          <input id="reportStart" type="date" class="input" aria-label="Start date" />
+          <input id="reportEnd" type="date" class="input" aria-label="End date" />
+          <button id="runReport" class="btn">Run</button>
+          <button id="exportReport" class="btn ghost">Export CSV</button>
+        </div>
+      </div>
+      <div class="cards" id="reportCards">
+        <!-- Summary cards injected by JS -->
+      </div>
+      <h3 class="section-title">Daily attendance trend</h3>
+      <div id="trend" class="trend"></div>
+      <h3 class="section-title">Top competencies covered</h3>
+      <div id="compTable" class="table"></div>
+    </section>
+
+    <section class="view hidden" id="settings" aria-labelledby="settingsTitle">
+      <div class="view-header">
+        <h2 id="settingsTitle">Settings</h2>
+      </div>
+      <div class="cards">
+        <div class="card">
+          <h3>Language</h3>
+          <div class="row">
+            <button class="btn ghost" data-lang="en">English</button>
+            <button class="btn ghost" data-lang="hi">हिंदी</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Data & privacy</h3>
+          <p>This is normal web app right now. Data is stored on your device (localStorage). You can clear it with Reset.</p>
+          <button id="downloadBackup" class="btn ghost">Download backup</button>
+          <button id="uploadBackup" class="btn ghost">Restore backup</button>
+          <input type="file" id="backupFile" accept="application/json" class="hidden" />
+        </div>
+        <div class="card">
+          <h3>About</h3>
+          <p>Made for rural schools: offline-first, low bandwidth, accessible UI.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <small>&copy; 2025 Smart Curriculum • teacher dashboard •</small>
+  </footer>
+
+  <script src="hack.js"></script>
+</body>
+</html>

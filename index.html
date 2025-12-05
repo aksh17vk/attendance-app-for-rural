@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Teacher Login & Registration • Smart Curriculum</title>
+  <link rel="stylesheet" href="hack.css" />
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: var(--surface);
+    }
+    .auth-card {
+      width: 360px;
+      padding: 2rem;
+      border-radius: 1rem;
+      background: var(--card-bg, #fff);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .auth-card h2 {
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .row { margin: 0.7rem 0; }
+    .input {
+      width: 100%;
+      padding: 0.6rem;
+      border-radius: 0.5rem;
+      border: 1px solid #ccc;
+    }
+    .btn {
+      width: 100%;
+      padding: 0.7rem;
+      border-radius: 0.6rem;
+      cursor: pointer;
+    }
+    .switch-link {
+      margin-top: 1rem;
+      text-align: center;
+      cursor: pointer;
+      color: var(--accent, #0f766e);
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <header style="text-align:center; margin-bottom:1.5rem;">
+    <h1 style="color:var(--accent,#0f766e); font-size:1.8rem;">Smart Curriculum App</h1>
+    <p>Offline-first teacher dashboard for rural schools</p>
+  </header>
+
+  <!-- LOGIN FORM -->
+  <div class="auth-card" id="loginForm">
+    <h2>Teacher Login</h2>
+
+    <div class="row">
+      <input id="loginEmail" type="email" class="input" placeholder="Email" />
+    </div>
+
+    <div class="row">
+      <input id="loginPass" type="password" class="input" placeholder="Password" />
+    </div>
+
+    <button id="loginBtn" class="btn">Login</button>
+
+    <div class="switch-link" onclick="showRegister()">New teacher? Register</div>
+  </div>
+
+  <!-- REGISTRATION FORM -->
+  <div class="auth-card hidden" id="registerForm">
+    <h2>Teacher Registration</h2>
+
+    <div class="row">
+      <input id="regName" class="input" placeholder="Full Name" />
+    </div>
+
+    <div class="row">
+      <input id="regEmail" type="email" class="input" placeholder="Email" />
+    </div>
+
+    <div class="row">
+      <input id="regPass" type="password" class="input" placeholder="Create Password" />
+    </div>
+
+    <button id="registerBtn" class="btn">Register</button>
+    <div class="switch-link" onclick="showLogin()">Already registered? Login</div>
+  </div>
+
+<script>
+  function showRegister(){
+    document.getElementById("loginForm").classList.add("hidden");
+    document.getElementById("registerForm").classList.remove("hidden");
+  }
+
+  function showLogin(){
+    document.getElementById("registerForm").classList.add("hidden");
+    document.getElementById("loginForm").classList.remove("hidden");
+  }
+
+  // Registration logic
+  document.getElementById('registerBtn').addEventListener('click', () => {
+    const name = regName.value.trim();
+    const email = regEmail.value.trim();
+    const pass = regPass.value.trim();
+
+    if(!name || !email || !pass){
+      alert("Please fill all fields");
+      return;
+    }
+
+    localStorage.setItem('teacher', JSON.stringify({ name, email, pass }));
+    alert("Registration successful. Please login.");
+    showLogin();
+  });
+
+  // Login logic
+  document.getElementById('loginBtn').addEventListener('click', () => {
+    const email = loginEmail.value.trim();
+    const pass = loginPass.value.trim();
+
+    const user = JSON.parse(localStorage.getItem('teacher'));
+
+    if(!user){
+      alert("No teacher registered.");
+      return;
+    }
+
+    if(email === user.email && pass === user.pass){
+      window.location.href = "hack.html";
+    } else {
+      alert("Invalid email or password.");
+    }
+  });
+</script>
+<script src="hack.js"></script> 
+
+</body>
+</html>
